@@ -12,6 +12,7 @@ public static class DependencyInjection
         IConfiguration configuration)
     {
         services.AddSingleton<IDateTime, DateTimeService>();
+        services.AddScoped<IEmailService, EmailService>();
 
         return services;
     }

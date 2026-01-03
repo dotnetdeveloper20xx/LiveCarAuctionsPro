@@ -59,4 +59,21 @@ public class BidRepository : Repository<Bid, BidId>, IBidRepository
         return await DbSet
             .CountAsync(b => b.AuctionId == auctionId && b.Status != BidStatus.Withdrawn, cancellationToken);
     }
+
+    public async Task<decimal> GetOutstandingBidsTotalAsync(
+        UserId bidderId,
+        CancellationToken cancellationToken = default)
+    {
+        // Get winning bids on active auctions (these are committed amounts)
+        var winningBidsTotal = await Context.Set<Auction>()
+            .Where(a => a.Status == AuctionStatus.Active && a.WinningBidId != null)
+            .Join(
+                DbSet.Where(b => b.BidderId == bidderId && b.Status == BidStatus.Winning),
+                auction => auction.WinningBidId,
+                bid => bid.Id,
+                (auction, bid) => bid.Amount.Amount)
+            .SumAsync(cancellationToken);
+
+        return winningBidsTotal;
+    }
 }

@@ -64,6 +64,27 @@ public class PlaceBidCommandHandler : IRequestHandler<PlaceBidCommand, ErrorOr<G
 
         var amount = Money.Create(request.Amount, request.Currency);
 
+        // Credit limit validation
+        if (bidder.CreditLimit is not null)
+        {
+            var creditLimit = bidder.CreditLimit;
+
+            // Get total outstanding bids by this user across all active auctions
+            var outstandingBids = await _bidRepository.GetOutstandingBidsTotalAsync(
+                bidderId,
+                cancellationToken);
+
+            var totalCommitment = outstandingBids + amount.Amount;
+
+            if (totalCommitment > creditLimit.TotalLimit.Amount)
+            {
+                var available = creditLimit.TotalLimit.Amount - outstandingBids;
+                return Error.Validation(
+                    "Bid.ExceedsCreditLimit",
+                    $"Bid exceeds available credit. Available: {available:C}, Required: {amount.Amount:C}");
+            }
+        }
+
         if (amount.Currency != auction.StartingPrice.Currency)
         {
             return Error.Validation("Bid.CurrencyMismatch", "Bid currency must match auction currency");
