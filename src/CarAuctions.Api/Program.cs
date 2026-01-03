@@ -1,3 +1,4 @@
+using CarAuctions.Api.Authorization;
 using CarAuctions.Api.Hubs;
 using CarAuctions.Api.Middleware;
 using CarAuctions.Application;
@@ -49,6 +50,9 @@ builder.Services.AddCors(options =>
 
 // Add SignalR for real-time bidding
 builder.Services.AddSignalR();
+
+// Add Authorization policies
+builder.Services.AddAuthorization(AuthorizationPolicies.AddPolicies);
 
 var app = builder.Build();
 

@@ -50,6 +50,7 @@ public static class DependencyInjection
         services.AddScoped<IVehicleRepository, VehicleRepository>();
         services.AddScoped<IBidRepository, BidRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IPaymentRepository, PaymentRepository>();
 
         // Register data seeder
         services.AddScoped<IDataSeeder, DataSeeder>();
