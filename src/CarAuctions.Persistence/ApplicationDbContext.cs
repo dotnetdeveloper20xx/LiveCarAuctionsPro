@@ -1,4 +1,8 @@
 using CarAuctions.Application.Common.Interfaces;
+using CarAuctions.Domain.Aggregates.Auctions;
+using CarAuctions.Domain.Aggregates.Bids;
+using CarAuctions.Domain.Aggregates.Users;
+using CarAuctions.Domain.Aggregates.Vehicles;
 using Microsoft.EntityFrameworkCore;
 
 namespace CarAuctions.Persistence;
@@ -9,6 +13,11 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
         : base(options)
     {
     }
+
+    public DbSet<Auction> Auctions => Set<Auction>();
+    public DbSet<Vehicle> Vehicles => Set<Vehicle>();
+    public DbSet<Bid> Bids => Set<Bid>();
+    public DbSet<User> Users => Set<User>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
