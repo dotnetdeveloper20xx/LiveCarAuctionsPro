@@ -7,13 +7,16 @@ namespace CarAuctions.Domain.Aggregates.Auctions;
 /// </summary>
 public sealed class AuctionSettings : ValueObject
 {
-    public TimeSpan AntiSnipingWindow { get; }
-    public TimeSpan AntiSnipingExtension { get; }
-    public Money MinimumBidIncrement { get; }
-    public bool AllowProxyBidding { get; }
-    public int MaxExtensions { get; }
-    public bool RequireDeposit { get; }
-    public Money? DepositAmount { get; }
+    public TimeSpan AntiSnipingWindow { get; private set; }
+    public TimeSpan AntiSnipingExtension { get; private set; }
+    public Money MinimumBidIncrement { get; private set; } = null!;
+    public bool AllowProxyBidding { get; private set; }
+    public int MaxExtensions { get; private set; }
+    public bool RequireDeposit { get; private set; }
+    public Money? DepositAmount { get; private set; }
+
+    // EF Core constructor
+    private AuctionSettings() { }
 
     private AuctionSettings(
         TimeSpan antiSnipingWindow,

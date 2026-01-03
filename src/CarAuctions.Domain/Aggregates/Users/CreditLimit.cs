@@ -8,9 +8,12 @@ namespace CarAuctions.Domain.Aggregates.Users;
 /// </summary>
 public sealed class CreditLimit : ValueObject
 {
-    public Money TotalLimit { get; }
-    public Money UsedAmount { get; }
+    public Money TotalLimit { get; private set; } = null!;
+    public Money UsedAmount { get; private set; } = null!;
     public Money AvailableAmount => TotalLimit - UsedAmount;
+
+    // EF Core constructor
+    private CreditLimit() { }
 
     private CreditLimit(Money totalLimit, Money usedAmount)
     {

@@ -23,10 +23,14 @@ public class DataSeeder : IDataSeeder
         try
         {
             await SeedUsersAsync(cancellationToken);
-            await SeedVehiclesAsync(cancellationToken);
-            await SeedAuctionsAsync(cancellationToken);
-
             await _context.SaveChangesAsync(cancellationToken);
+
+            await SeedVehiclesAsync(cancellationToken);
+            await _context.SaveChangesAsync(cancellationToken);
+
+            await SeedAuctionsAsync(cancellationToken);
+            await _context.SaveChangesAsync(cancellationToken);
+
             _logger.LogInformation("Database seeding completed successfully");
         }
         catch (Exception ex)

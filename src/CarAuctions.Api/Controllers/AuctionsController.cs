@@ -1,6 +1,7 @@
 using CarAuctions.Application.Common.Models;
 using CarAuctions.Application.Features.Auctions.Commands.CloseAuction;
 using CarAuctions.Application.Features.Auctions.Commands.CreateAuction;
+using CarAuctions.Application.Features.Auctions.Commands.ScheduleAuction;
 using CarAuctions.Application.Features.Auctions.Commands.StartAuction;
 using CarAuctions.Application.Features.Auctions.Queries.GetAuctionById;
 using CarAuctions.Application.Features.Auctions.Queries.GetAuctions;
@@ -62,6 +63,20 @@ public class AuctionsController : ControllerBase
 
         return result.Match(
             id => CreatedAtAction(nameof(GetAuction), new { id }, id),
+            errors => Problem(errors));
+    }
+
+    [HttpPost("{id:guid}/schedule")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ScheduleAuction(Guid id, CancellationToken cancellationToken)
+    {
+        var command = new ScheduleAuctionCommand(id);
+        var result = await _mediator.Send(command, cancellationToken);
+
+        return result.Match(
+            _ => Ok(),
             errors => Problem(errors));
     }
 

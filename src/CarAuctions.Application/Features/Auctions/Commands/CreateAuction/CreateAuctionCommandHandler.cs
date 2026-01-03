@@ -74,6 +74,7 @@ public class CreateAuctionCommandHandler : IRequestHandler<CreateAuctionCommand,
 
         var auction = auctionResult.Value;
         await _auctionRepository.AddAsync(auction, cancellationToken);
+        await _auctionRepository.SaveChangesAsync(cancellationToken);
 
         return auction.Id.Value;
     }

@@ -12,6 +12,8 @@ public static class DependencyInjection
         this IServiceCollection services,
         IConfiguration configuration)
     {
+        services.AddHttpContextAccessor();
+        services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddSingleton<IDateTime, DateTimeService>();
         services.AddScoped<IEmailService, EmailService>();
         services.AddScoped<IInvoiceService, InvoiceService>();

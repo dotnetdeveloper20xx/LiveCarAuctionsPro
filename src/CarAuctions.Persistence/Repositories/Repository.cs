@@ -73,4 +73,9 @@ public class Repository<TEntity, TId> : IRepository<TEntity, TId>
     {
         return await DbSet.CountAsync(predicate, cancellationToken);
     }
+
+    public virtual async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        return await Context.SaveChangesAsync(cancellationToken);
+    }
 }

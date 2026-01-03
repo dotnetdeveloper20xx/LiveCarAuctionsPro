@@ -3,23 +3,19 @@ using CarAuctions.Domain.Aggregates.Auctions;
 using ErrorOr;
 using MediatR;
 
-namespace CarAuctions.Application.Features.Auctions.Commands.StartAuction;
+namespace CarAuctions.Application.Features.Auctions.Commands.ScheduleAuction;
 
-public class StartAuctionCommandHandler : IRequestHandler<StartAuctionCommand, ErrorOr<Success>>
+public class ScheduleAuctionCommandHandler : IRequestHandler<ScheduleAuctionCommand, ErrorOr<Success>>
 {
     private readonly IAuctionRepository _auctionRepository;
-    private readonly IDateTime _dateTime;
 
-    public StartAuctionCommandHandler(
-        IAuctionRepository auctionRepository,
-        IDateTime dateTime)
+    public ScheduleAuctionCommandHandler(IAuctionRepository auctionRepository)
     {
         _auctionRepository = auctionRepository;
-        _dateTime = dateTime;
     }
 
     public async Task<ErrorOr<Success>> Handle(
-        StartAuctionCommand request,
+        ScheduleAuctionCommand request,
         CancellationToken cancellationToken)
     {
         var auctionId = new AuctionId(request.AuctionId);
@@ -30,7 +26,7 @@ public class StartAuctionCommandHandler : IRequestHandler<StartAuctionCommand, E
             return Error.NotFound("Auction.NotFound", "Auction not found");
         }
 
-        var result = auction.Start(_dateTime.UtcNow);
+        var result = auction.Schedule();
         if (result.IsError)
         {
             return result.Errors;

@@ -4,10 +4,13 @@ namespace CarAuctions.Domain.Aggregates.Payments;
 
 public sealed class Fee : ValueObject
 {
-    public FeeType Type { get; }
-    public Money Amount { get; }
-    public decimal Rate { get; }
-    public string Description { get; }
+    public FeeType Type { get; private set; }
+    public Money Amount { get; private set; } = null!;
+    public decimal Rate { get; private set; }
+    public string Description { get; private set; } = null!;
+
+    // EF Core constructor
+    private Fee() { }
 
     private Fee(FeeType type, Money amount, decimal rate, string description)
     {
