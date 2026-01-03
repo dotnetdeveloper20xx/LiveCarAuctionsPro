@@ -64,7 +64,7 @@ docker-compose up -d
 ## Implementation Phases
 
 - [x] Phase 1: Foundation & Solution Setup
-- [ ] Phase 2: Core Domain Models
+- [x] Phase 2: Core Domain Models
 - [ ] Phase 3: Persistence & EF Core
 - [ ] Phase 4: CQRS Infrastructure
 - [ ] Phase 5: API Layer
