@@ -1,0 +1,86 @@
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# Visual Studio files
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.rsuser
+*.userprefs
+
+# NuGet
+*.nupkg
+**/[Pp]ackages/*
+!**/[Pp]ackages/build/
+
+# Test results
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+*.trx
+TestResult.xml
+
+# NCrunch
+*.ncrunchproject
+*.ncrunchsolution
+
+# Rider
+.idea/
+
+# Dotnet tools
+.config/
+
+# VS Code
+.vscode/
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+
+# Project specific
+docker/.env
+*.log
+
+# Publish output
+publish/
+
+# Coverage reports
+coverage/
+*.coverage
+*.coveragexml
+
+# Secrets
+appsettings.*.local.json
+secrets.json
+
+# Angular
+frontend/carauctions-web/node_modules/
+frontend/carauctions-web/dist/
+frontend/carauctions-web/.angular/
+
+# Claude files (as per requirements - do not commit)
+*.claude*
+.claude/
+
+# Project prompt files (do not commit)
+Initial project prompt.txt
+initial project prompt.txt
+design examples/
+nul

@@ -1,0 +1,15 @@
+version: '3.8'
+
+# Override file for local development
+# Usage: docker-compose -f docker-compose.yml -f docker-compose.override.yml up -d
+
+services:
+  sqlserver:
+    environment:
+      - SA_PASSWORD=CarAuctions@Dev2024!
+    ports:
+      - "1434:1433"  # Different port to avoid conflicts
+
+  azurite:
+    environment:
+      - AZURITE_ACCOUNTS=devstoreaccount1:Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==
