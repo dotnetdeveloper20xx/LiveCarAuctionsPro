@@ -1,6 +1,9 @@
+using CarAuctions.Api.Hubs;
+using CarAuctions.Api.Middleware;
 using CarAuctions.Application;
 using CarAuctions.Infrastructure;
 using CarAuctions.Persistence;
+using CarAuctions.Persistence.Seeding;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -50,6 +53,9 @@ builder.Services.AddSignalR();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline
+app.UseExceptionHandling();
+app.UseCorrelationId();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -58,6 +64,11 @@ if (app.Environment.IsDevelopment())
         options.SwaggerEndpoint("/swagger/v1/swagger.json", "CarAuctions API v1");
         options.RoutePrefix = "swagger";
     });
+
+    // Seed development data
+    using var scope = app.Services.CreateScope();
+    var seeder = scope.ServiceProvider.GetRequiredService<IDataSeeder>();
+    await seeder.SeedAsync();
 }
 
 app.UseSerilogRequestLogging();
@@ -70,6 +81,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<AuctionHub>("/hubs/auction");
 
 // Health check endpoint
 app.MapGet("/health", () => Results.Ok(new { Status = "Healthy", Timestamp = DateTime.UtcNow }))
