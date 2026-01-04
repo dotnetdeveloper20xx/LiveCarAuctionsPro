@@ -137,6 +137,39 @@ public sealed class Auction : AggregateRoot<AuctionId>
         return auction;
     }
 
+    /// <summary>
+    /// Creates an auction for seeding/testing purposes, bypassing date validation.
+    /// </summary>
+    public static Auction CreateForSeeding(
+        string title,
+        AuctionType type,
+        VehicleId vehicleId,
+        UserId sellerId,
+        Money startingPrice,
+        DateTime startTime,
+        DateTime endTime,
+        AuctionSettings? settings = null,
+        Money? reservePrice = null,
+        Money? buyNowPrice = null,
+        string? description = null,
+        bool isDealerOnly = false)
+    {
+        return new Auction(
+            AuctionId.CreateUnique(),
+            title.Trim(),
+            description?.Trim(),
+            type,
+            vehicleId,
+            sellerId,
+            startingPrice,
+            reservePrice,
+            buyNowPrice,
+            settings ?? AuctionSettings.Default(startingPrice.Currency),
+            startTime,
+            endTime,
+            isDealerOnly);
+    }
+
     public ErrorOr<Success> Schedule()
     {
         if (Status != AuctionStatus.Draft)
