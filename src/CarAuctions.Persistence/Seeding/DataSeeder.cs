@@ -1,3 +1,4 @@
+using CarAuctions.Application.Common.Interfaces;
 using CarAuctions.Domain.Aggregates.Auctions;
 using CarAuctions.Domain.Aggregates.Users;
 using CarAuctions.Domain.Aggregates.Vehicles;
@@ -11,11 +12,16 @@ public class DataSeeder : IDataSeeder
 {
     private readonly ApplicationDbContext _context;
     private readonly ILogger<DataSeeder> _logger;
+    private readonly IPasswordHasher _passwordHasher;
 
-    public DataSeeder(ApplicationDbContext context, ILogger<DataSeeder> logger)
+    public DataSeeder(
+        ApplicationDbContext context,
+        ILogger<DataSeeder> logger,
+        IPasswordHasher passwordHasher)
     {
         _context = context;
         _logger = logger;
+        _passwordHasher = passwordHasher;
     }
 
     public async Task SeedAsync(CancellationToken cancellationToken = default)
@@ -47,9 +53,13 @@ public class DataSeeder : IDataSeeder
 
         var users = new List<User>();
 
+        // Default password for all seeded users: "Password123!"
+        var defaultPasswordHash = _passwordHasher.HashPassword("Password123!");
+
         // Admin user
         var admin = User.Create(
             "admin@carauctions.com",
+            defaultPasswordHash,
             "Admin",
             "User",
             UserRole.Admin | UserRole.Buyer | UserRole.Seller);
@@ -58,6 +68,7 @@ public class DataSeeder : IDataSeeder
         // Dealer user
         var dealer = User.Create(
             "dealer@example.com",
+            defaultPasswordHash,
             "John",
             "Dealer",
             UserRole.Dealer | UserRole.Buyer | UserRole.Seller,
@@ -72,6 +83,7 @@ public class DataSeeder : IDataSeeder
         // Regular buyer
         var buyer = User.Create(
             "buyer@example.com",
+            defaultPasswordHash,
             "Jane",
             "Buyer",
             UserRole.Buyer);
@@ -84,6 +96,7 @@ public class DataSeeder : IDataSeeder
         // Seller
         var seller = User.Create(
             "seller@example.com",
+            defaultPasswordHash,
             "Bob",
             "Seller",
             UserRole.Seller);
@@ -92,6 +105,7 @@ public class DataSeeder : IDataSeeder
         // Inspector
         var inspector = User.Create(
             "inspector@carauctions.com",
+            defaultPasswordHash,
             "Inspector",
             "Smith",
             UserRole.Inspector);
@@ -103,7 +117,7 @@ public class DataSeeder : IDataSeeder
         }
 
         await _context.Users.AddRangeAsync(users, cancellationToken);
-        _logger.LogInformation("Seeded {Count} users", users.Count);
+        _logger.LogInformation("Seeded {Count} users (default password: Password123!)", users.Count);
     }
 
     private async Task SeedVehiclesAsync(CancellationToken cancellationToken)

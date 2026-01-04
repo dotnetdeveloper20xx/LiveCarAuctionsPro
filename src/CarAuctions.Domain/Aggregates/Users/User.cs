@@ -10,6 +10,7 @@ namespace CarAuctions.Domain.Aggregates.Users;
 public sealed class User : AggregateRoot<UserId>
 {
     public string Email { get; private set; }
+    public string PasswordHash { get; private set; }
     public string FirstName { get; private set; }
     public string LastName { get; private set; }
     public string? Phone { get; private set; }
@@ -31,12 +32,14 @@ public sealed class User : AggregateRoot<UserId>
     private User(
         UserId id,
         string email,
+        string passwordHash,
         string firstName,
         string lastName,
         string? phone,
         UserRole roles) : base(id)
     {
         Email = email;
+        PasswordHash = passwordHash;
         FirstName = firstName;
         LastName = lastName;
         Phone = phone;
@@ -49,12 +52,14 @@ public sealed class User : AggregateRoot<UserId>
     private User() : base()
     {
         Email = string.Empty;
+        PasswordHash = string.Empty;
         FirstName = string.Empty;
         LastName = string.Empty;
     }
 
     public static ErrorOr<User> Create(
         string email,
+        string passwordHash,
         string firstName,
         string lastName,
         UserRole roles = UserRole.Buyer,
@@ -62,6 +67,9 @@ public sealed class User : AggregateRoot<UserId>
     {
         if (string.IsNullOrWhiteSpace(email) || !email.Contains('@'))
             return Error.Validation("User.InvalidEmail", "Valid email is required.");
+
+        if (string.IsNullOrWhiteSpace(passwordHash))
+            return Error.Validation("User.PasswordRequired", "Password is required.");
 
         if (string.IsNullOrWhiteSpace(firstName))
             return Error.Validation("User.FirstNameRequired", "First name is required.");
@@ -72,6 +80,7 @@ public sealed class User : AggregateRoot<UserId>
         var user = new User(
             UserId.CreateUnique(),
             email.Trim().ToLowerInvariant(),
+            passwordHash,
             firstName.Trim(),
             lastName.Trim(),
             phone?.Trim(),
@@ -80,6 +89,11 @@ public sealed class User : AggregateRoot<UserId>
         user.RaiseDomainEvent(new UserRegisteredEvent(user.Id, user.Email, user.Roles));
 
         return user;
+    }
+
+    public bool VerifyPassword(string passwordHash)
+    {
+        return PasswordHash == passwordHash;
     }
 
     public ErrorOr<Success> Activate()

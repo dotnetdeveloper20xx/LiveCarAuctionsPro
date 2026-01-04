@@ -1,4 +1,5 @@
 using CarAuctions.Api.Authorization;
+using CarAuctions.Application.Common.Interfaces;
 using CarAuctions.Application.Features.Payments.Commands.InitiatePayment;
 using CarAuctions.Application.Features.Payments.Commands.ProcessPayment;
 using MediatR;
@@ -14,11 +15,19 @@ public class PaymentsController : ControllerBase
 {
     private readonly ISender _mediator;
     private readonly ILogger<PaymentsController> _logger;
+    private readonly IWebhookSignatureValidator _signatureValidator;
+    private readonly IConfiguration _configuration;
 
-    public PaymentsController(ISender mediator, ILogger<PaymentsController> logger)
+    public PaymentsController(
+        ISender mediator,
+        ILogger<PaymentsController> logger,
+        IWebhookSignatureValidator signatureValidator,
+        IConfiguration configuration)
     {
         _mediator = mediator;
         _logger = logger;
+        _signatureValidator = signatureValidator;
+        _configuration = configuration;
     }
 
     /// <summary>
@@ -61,11 +70,34 @@ public class PaymentsController : ControllerBase
     [AllowAnonymous] // Webhooks are authenticated via signature
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> ProcessPaymentWebhook(
+        [FromHeader(Name = "X-Webhook-Signature")] string? signature,
         [FromBody] PaymentWebhookRequest request,
         CancellationToken cancellationToken)
     {
-        // In production, verify webhook signature here
+        // Verify webhook signature
+        var webhookSecret = _configuration["Payment:WebhookSecret"];
+        if (string.IsNullOrEmpty(webhookSecret))
+        {
+            _logger.LogError("Payment webhook secret is not configured");
+            return StatusCode(StatusCodes.Status500InternalServerError);
+        }
+
+        if (string.IsNullOrEmpty(signature))
+        {
+            _logger.LogWarning("Payment webhook received without signature");
+            return Unauthorized(new { error = "Missing webhook signature" });
+        }
+
+        // Serialize request to validate signature
+        var payload = System.Text.Json.JsonSerializer.Serialize(request);
+        if (!_signatureValidator.ValidateSignature(payload, signature, webhookSecret))
+        {
+            _logger.LogWarning("Payment webhook signature validation failed for {PaymentId}", request.PaymentId);
+            return Unauthorized(new { error = "Invalid webhook signature" });
+        }
+
         _logger.LogInformation(
             "Payment webhook received for {PaymentId}: {Status}",
             request.PaymentId,

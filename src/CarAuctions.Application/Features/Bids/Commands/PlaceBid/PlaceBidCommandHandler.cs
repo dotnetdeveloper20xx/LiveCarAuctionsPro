@@ -121,6 +121,7 @@ public class PlaceBidCommandHandler : IRequestHandler<PlaceBidCommand, ErrorOr<G
 
         await _bidRepository.AddAsync(bid, cancellationToken);
         await _auctionRepository.UpdateAsync(auction, cancellationToken);
+        await _bidRepository.SaveChangesAsync(cancellationToken);
 
         return bid.Id.Value;
     }

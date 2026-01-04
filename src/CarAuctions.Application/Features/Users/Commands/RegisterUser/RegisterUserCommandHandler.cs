@@ -10,13 +10,16 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, E
 {
     private readonly IUserRepository _userRepository;
     private readonly IApplicationDbContext _context;
+    private readonly IPasswordHasher _passwordHasher;
 
     public RegisterUserCommandHandler(
         IUserRepository userRepository,
-        IApplicationDbContext context)
+        IApplicationDbContext context,
+        IPasswordHasher passwordHasher)
     {
         _userRepository = userRepository;
         _context = context;
+        _passwordHasher = passwordHasher;
     }
 
     public async Task<ErrorOr<Guid>> Handle(
@@ -24,7 +27,7 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, E
         CancellationToken cancellationToken)
     {
         var existingUser = await _context.Users
-            .FirstOrDefaultAsync(u => u.Email == request.Email, cancellationToken);
+            .FirstOrDefaultAsync(u => u.Email == request.Email.ToLowerInvariant(), cancellationToken);
 
         if (existingUser is not null)
         {
@@ -40,8 +43,11 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, E
             }
         }
 
+        var passwordHash = _passwordHasher.HashPassword(request.Password);
+
         var userResult = User.Create(
             request.Email,
+            passwordHash,
             request.FirstName,
             request.LastName,
             roles,
@@ -54,6 +60,7 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, E
 
         var user = userResult.Value;
         await _userRepository.AddAsync(user, cancellationToken);
+        await _userRepository.SaveChangesAsync(cancellationToken);
 
         return user.Id.Value;
     }
