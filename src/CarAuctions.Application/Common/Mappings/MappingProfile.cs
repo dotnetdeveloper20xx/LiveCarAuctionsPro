@@ -38,7 +38,10 @@ public class MappingProfile : Profile
         CreateMap<Vehicle, VehicleSummaryDto>()
             .ForMember(d => d.Id, opt => opt.MapFrom(s => s.Id.Value))
             .ForMember(d => d.VIN, opt => opt.MapFrom(s => s.VIN.Value))
-            .ForMember(d => d.Mileage, opt => opt.MapFrom(s => s.Mileage.Value));
+            .ForMember(d => d.Mileage, opt => opt.MapFrom(s => s.Mileage.Value))
+            .ForMember(d => d.ImageUrl, opt => opt.MapFrom(s => s.Images.FirstOrDefault(i => i.IsPrimary) != null
+                ? s.Images.First(i => i.IsPrimary).Url
+                : s.Images.FirstOrDefault() != null ? s.Images.First().Url : null));
 
         CreateMap<ConditionReport, ConditionReportDto>()
             .ForMember(d => d.OverallGrade, opt => opt.MapFrom(s => s.OverallGrade.ToString()))

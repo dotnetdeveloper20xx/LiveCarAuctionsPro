@@ -304,6 +304,12 @@ public class DataSeeder : IDataSeeder
                     GetConditionDescription(grade));
 
                 vehicle.AddConditionReport(report);
+
+                // Add vehicle image (cycle through 6 available images)
+                var imageNumber = (_vehicles.Count % 6) + 1;
+                var imageUrl = $"assets/images/vehicles/{imageNumber}.png";
+                vehicle.AddImage(imageUrl, ImageType.Exterior, isPrimary: true);
+
                 vehicle.MarkAsListed();
                 _vehicles.Add(vehicle);
             }

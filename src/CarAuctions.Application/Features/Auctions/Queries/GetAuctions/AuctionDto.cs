@@ -33,4 +33,5 @@ public record VehicleSummaryDto
     public int Year { get; init; }
     public int Mileage { get; init; }
     public string? ExteriorColor { get; init; }
+    public string? ImageUrl { get; init; }
 }

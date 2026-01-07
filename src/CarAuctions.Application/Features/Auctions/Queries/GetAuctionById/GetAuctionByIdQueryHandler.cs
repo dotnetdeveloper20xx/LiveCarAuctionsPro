@@ -1,6 +1,7 @@
 using CarAuctions.Application.Common.Interfaces;
 using CarAuctions.Application.Features.Auctions.Queries.GetAuctions;
 using CarAuctions.Domain.Aggregates.Auctions;
+using CarAuctions.Domain.Aggregates.Vehicles;
 using ErrorOr;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -31,6 +32,31 @@ public class GetAuctionByIdQueryHandler : IRequestHandler<GetAuctionByIdQuery, E
             return Error.NotFound("Auction.NotFound", "Auction not found");
         }
 
+        // Get vehicle with images
+        var vehicle = await _context.Vehicles
+            .AsNoTracking()
+            .Include(v => v.Images)
+            .FirstOrDefaultAsync(v => v.Id == auction.VehicleId, cancellationToken);
+
+        VehicleSummaryDto? vehicleSummary = null;
+        if (vehicle is not null)
+        {
+            var primaryImage = vehicle.Images.FirstOrDefault(i => i.IsPrimary);
+            var firstImage = vehicle.Images.FirstOrDefault();
+
+            vehicleSummary = new VehicleSummaryDto
+            {
+                Id = vehicle.Id.Value,
+                VIN = vehicle.VIN.Value,
+                Make = vehicle.Make,
+                Model = vehicle.Model,
+                Year = vehicle.Year,
+                Mileage = vehicle.Mileage.Value,
+                ExteriorColor = vehicle.ExteriorColor,
+                ImageUrl = primaryImage?.Url ?? firstImage?.Url
+            };
+        }
+
         return new AuctionDto
         {
             Id = auction.Id.Value,
@@ -49,7 +75,8 @@ public class GetAuctionByIdQueryHandler : IRequestHandler<GetAuctionByIdQuery, E
             ActualEndTime = auction.ActualEndTime,
             BidCount = auction.BidCount,
             IsDealerOnly = auction.IsDealerOnly,
-            Description = auction.Description
+            Description = auction.Description,
+            Vehicle = vehicleSummary
         };
     }
 }

@@ -1,6 +1,7 @@
 using CarAuctions.Application.Common.Interfaces;
 using CarAuctions.Application.Common.Models;
 using CarAuctions.Domain.Aggregates.Auctions;
+using CarAuctions.Domain.Aggregates.Vehicles;
 using ErrorOr;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -41,25 +42,46 @@ public class GetAuctionsQueryHandler : IRequestHandler<GetAuctionsQuery, ErrorOr
 
         query = query.OrderByDescending(a => a.StartTime);
 
-        var projectedQuery = query.Select(a => new AuctionDto
+        // Join with vehicles to get vehicle info including images
+        var auctionsWithVehicles = from auction in query
+                                   join vehicle in _context.Vehicles.Include(v => v.Images)
+                                   on auction.VehicleId equals vehicle.Id
+                                   select new { auction, vehicle };
+
+        var projectedQuery = auctionsWithVehicles.Select(av => new AuctionDto
         {
-            Id = a.Id.Value,
-            Title = a.Title,
-            Type = a.Type.ToString(),
-            Status = a.Status.ToString(),
-            VehicleId = a.VehicleId.Value,
-            SellerId = a.SellerId.Value,
-            StartingPrice = a.StartingPrice.Amount,
-            Currency = a.StartingPrice.Currency,
-            ReservePrice = a.ReservePrice != null ? a.ReservePrice.Amount : null,
-            BuyNowPrice = a.BuyNowPrice != null ? a.BuyNowPrice.Amount : null,
-            CurrentHighBid = a.CurrentHighBid.Amount,
-            StartTime = a.StartTime,
-            EndTime = a.EndTime,
-            ActualEndTime = a.ActualEndTime,
-            BidCount = a.BidCount,
-            IsDealerOnly = a.IsDealerOnly,
-            Description = a.Description
+            Id = av.auction.Id.Value,
+            Title = av.auction.Title,
+            Type = av.auction.Type.ToString(),
+            Status = av.auction.Status.ToString(),
+            VehicleId = av.auction.VehicleId.Value,
+            SellerId = av.auction.SellerId.Value,
+            StartingPrice = av.auction.StartingPrice.Amount,
+            Currency = av.auction.StartingPrice.Currency,
+            ReservePrice = av.auction.ReservePrice != null ? av.auction.ReservePrice.Amount : null,
+            BuyNowPrice = av.auction.BuyNowPrice != null ? av.auction.BuyNowPrice.Amount : null,
+            CurrentHighBid = av.auction.CurrentHighBid.Amount,
+            StartTime = av.auction.StartTime,
+            EndTime = av.auction.EndTime,
+            ActualEndTime = av.auction.ActualEndTime,
+            BidCount = av.auction.BidCount,
+            IsDealerOnly = av.auction.IsDealerOnly,
+            Description = av.auction.Description,
+            Vehicle = new VehicleSummaryDto
+            {
+                Id = av.vehicle.Id.Value,
+                VIN = av.vehicle.VIN.Value,
+                Make = av.vehicle.Make,
+                Model = av.vehicle.Model,
+                Year = av.vehicle.Year,
+                Mileage = av.vehicle.Mileage.Value,
+                ExteriorColor = av.vehicle.ExteriorColor,
+                ImageUrl = av.vehicle.Images.FirstOrDefault(i => i.IsPrimary) != null
+                    ? av.vehicle.Images.First(i => i.IsPrimary).Url
+                    : av.vehicle.Images.FirstOrDefault() != null
+                        ? av.vehicle.Images.First().Url
+                        : null
+            }
         });
 
         return await PaginatedList<AuctionDto>.CreateAsync(
