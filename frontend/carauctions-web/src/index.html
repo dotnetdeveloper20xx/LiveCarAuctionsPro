@@ -2,14 +2,48 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>CarauctionsWeb</title>
+  <title>CarAuctions - Vehicle Auction Platform</title>
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Real-time vehicle auction platform with live bidding, proxy bids, and dealer auctions">
+  <meta name="theme-color" content="#1976d2">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="CarAuctions">
+
+  <!-- Manifest for PWA -->
+  <link rel="manifest" href="manifest.webmanifest">
+
+  <!-- Favicon -->
   <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="apple-touch-icon" href="assets/icons/icon-192x192.png">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+  <!-- Open Graph / Social -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="CarAuctions - Vehicle Auction Platform">
+  <meta property="og:description" content="Real-time vehicle auction platform with live bidding">
+  <meta property="og:site_name" content="CarAuctions">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="CarAuctions - Vehicle Auction Platform">
+  <meta name="twitter:description" content="Real-time vehicle auction platform with live bidding">
 </head>
 <body>
   <app-root></app-root>
+
+  <!-- No-JS Fallback -->
+  <noscript>
+    <div style="text-align: center; padding: 50px;">
+      <h1>CarAuctions</h1>
+      <p>Please enable JavaScript to use this application.</p>
+    </div>
+  </noscript>
 </body>
 </html>

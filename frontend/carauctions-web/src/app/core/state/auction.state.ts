@@ -78,6 +78,13 @@ export class AuctionState {
     status?: string;
     type?: string;
     searchTerm?: string;
+    make?: string;
+    model?: string;
+    yearFrom?: number;
+    yearTo?: number;
+    priceFrom?: number;
+    priceTo?: number;
+    dealerOnly?: boolean;
   }): void {
     this._loading.set(true);
     this._error.set(null);

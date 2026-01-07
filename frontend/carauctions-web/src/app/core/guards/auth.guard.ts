@@ -55,3 +55,25 @@ export const dealerGuard: CanActivateFn = (route, state) => {
 
   return true;
 };
+
+export const sellerGuard: CanActivateFn = (route, state) => {
+  const authService = inject(AuthService);
+  const router = inject(Router);
+
+  if (!authService.isAuthenticated()) {
+    router.navigate(['/login'], {
+      queryParams: { returnUrl: state.url }
+    });
+    return false;
+  }
+
+  const user = authService.currentUser();
+  const isSeller = user?.roles?.some(r => r === 'Seller' || r === 'Dealer') ?? false;
+
+  if (!isSeller) {
+    router.navigate(['/']);
+    return false;
+  }
+
+  return true;
+};
